@@ -45,7 +45,8 @@ public class AdvantageDemoSteps extends AbstractSteps {
         click(advantageDemoHomePage.myAccount);
         waitForPageLoad();
         click(advantageDemoMyAccount.deleteAccount);
-        waitForElement(By.xpath(advantageDemoMyAccount.yesButtonDeleteAccountXpath)).click();
+        waitUntilVisibility(advantageDemoMyAccount.yesButtonDeleteAccount);
+        click(advantageDemoMyAccount.yesButtonDeleteAccount);
         waitForPageLoad();
     }
 

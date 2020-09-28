@@ -68,15 +68,12 @@ public class Utils {
     }
 
     /**
-     * Makes the execution halt until the condition of the element being invisible is met
+     * Makes the execution halt until the condition of the element being visible is met
      * Default timeout: 15 seconds
-     *
-     * @param by
      */
-    public static void waitUntilInvisibility(By by) {
-        WebElement webElement = webDriverProvider.get().findElement(by);
+    public static void waitUntilVisibility(WebElement webElement) {
         new WebDriverWait(webDriverProvider.get(), Duration.ofSeconds(15))
-                .until(ExpectedConditions.attributeToBe(webElement, "display", "none"));
+                .until(ExpectedConditions.visibilityOf(webElement));
     }
 
     /**
