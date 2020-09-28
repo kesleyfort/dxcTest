@@ -1,12 +1,12 @@
-com/dxc/testekesley/context/TestContext.class
 com/dxc/testekesley/AllStories.class
+com/dxc/testekesley/context/TestContext.class
 com/dxc/testekesley/configuration/PageObjectBeanPostProcessor.class
 com/dxc/testekesley/configuration/ProjectConfiguration.class
 com/dxc/testekesley/pages/AbstractPage.class
 com/dxc/testekesley/configuration/PageObject.class
 com/dxc/testekesley/configuration/AbstractStoryConfiguration.class
 com/dxc/testekesley/steps/AbstractSteps.class
-com/dxc/testekesley/steps/NetshoesHomePageSteps.class
+com/dxc/testekesley/steps/AdvantageDemoSteps.class
 com/dxc/testekesley/utils/Utils.class
-com/dxc/testekesley/pages/NetshoesPage.class
 com/dxc/testekesley/lifecycle/WebDriverLifeCycleSteps.class
+com/dxc/testekesley/pages/AdvantageDemoHomePage.class

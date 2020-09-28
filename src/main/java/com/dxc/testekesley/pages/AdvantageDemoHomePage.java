@@ -18,5 +18,9 @@ public class AdvantageDemoHomePage {
     public String loginModalXpath = "//login-modal";
     @FindBy(xpath = "//div[@class='loader']")
     public WebElement loadingSpinner;
-
+    public String loadingSpinnerXpath = "//div[@class='loader']";
+    @FindBy(xpath = "//div[@id='loginMiniTitle']//label[contains(.,'My account')]")
+    public WebElement myAccount;
+    @FindBy(xpath = "//article[@id='popular_items']//a")
+    public List<WebElement> popularItems;
 }

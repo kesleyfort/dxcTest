@@ -1,7 +1,6 @@
 package com.dxc.testekesley.lifecycle;
 
 import com.dxc.testekesley.configuration.PageObjectBeanPostProcessor;
-import org.jbehave.core.annotations.AfterStory;
 import org.jbehave.core.annotations.BeforeStory;
 import org.jbehave.web.selenium.WebDriverProvider;
 import org.openqa.selenium.support.PageFactory;
@@ -31,8 +30,8 @@ public class WebDriverLifeCycleSteps {
         }
     }
 
-    @AfterStory
-    public void afterStory() throws Exception {
-        driverProvider.end();
-    }
+//    @AfterStory
+//    public void afterStory() throws Exception {
+//        driverProvider.end();
+//    }
 }

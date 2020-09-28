@@ -9,6 +9,8 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
+import java.util.List;
+import java.util.Random;
 
 @Component
 public class Utils {
@@ -18,7 +20,9 @@ public class Utils {
         Utils.webDriverProvider = webDriverProvider;
     }
 
-    /** Função usada para fazer o teste esperar enquanto verifica se o webElement encontra-se presente na tela.
+    /**
+     * Makes the execution halt until the element is found. Polling for the element every 3 seconds with timeout of 15 seconds.
+     *
      * @param by Identificador de tipo de busca (By.xpath, By.id, By.css, etc)
      * @return
      */
@@ -36,14 +40,107 @@ public class Utils {
     }
 
     /**
-     * Função usada para navegar até uma URL
+     * Navigates to a given URL
+     *
      * @param url
      */
-    public static void navigateTo(String url){
+    public static void navigateTo(String url) {
         webDriverProvider.get().get(url);
     }
 
-    public static void click(WebElement webElement){
+    /**
+     * Clicks on a web element
+     *
+     * @param webElement
+     */
+    public static void click(WebElement webElement) {
         webElement.click();
     }
+
+    /**
+     * Makes the execution halt until the condition of the element being clickable is met
+     *
+     * @param webElement
+     */
+    public static void waitUntilClickable(WebElement webElement) {
+        new WebDriverWait(webDriverProvider.get(), Duration.ofSeconds(15))
+                .until(ExpectedConditions.elementToBeClickable(webElement));
+    }
+
+    /**
+     * Makes the execution halt until the condition of the element being invisible is met
+     * Default timeout: 15 seconds
+     *
+     * @param by
+     */
+    public static void waitUntilInvisibility(By by) {
+        WebElement webElement = webDriverProvider.get().findElement(by);
+        new WebDriverWait(webDriverProvider.get(), Duration.ofSeconds(15))
+                .until(ExpectedConditions.attributeToBe(webElement, "display", "none"));
+    }
+
+    /**
+     * Set text inside a web element
+     *
+     * @param webElement
+     * @param text
+     */
+    public static void setText(WebElement webElement, String text) {
+        webElement.sendKeys(text);
+    }
+
+    /**
+     * Gets text from a web element
+     *
+     * @param webElement
+     * @return
+     */
+    public static String getText(WebElement webElement) {
+        return webElement.getText();
+    }
+
+    /**
+     * Get text from anything that can be identified using By
+     *
+     * @param by
+     * @return
+     */
+    public static String getText(By by) {
+        return webDriverProvider.get().findElement(by).getText();
+    }
+
+    /**
+     * Gets the value from an input
+     *
+     * @param webElement
+     * @return value of the input
+     */
+    public static String getTextFromInput(WebElement webElement) {
+        return webElement.getAttribute("value").trim();
+    }
+
+    public static Boolean validateTextExists(WebElement webElement) {
+        return !getText(webElement).isEmpty() && !getText(webElement).isBlank() && getText(webElement) != null;
+    }
+
+    /**
+     * Makes the test halt for 10 seconds before executing the next step. Useful when explicit, implicit or fluente wait
+     * can't be used.
+     */
+    public static void waitForPageLoad() {
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Randomly clicks on an item from a List of web elements
+     */
+    public static void randomClick(List<WebElement> webElementList) {
+        Random random = new Random();
+        webElementList.get(random.nextInt(webElementList.size() - 1)).click();
+    }
+
 }

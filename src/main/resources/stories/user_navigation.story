@@ -10,10 +10,25 @@ Given the customer access the store's home page
 When i click the account button
 Then i should see the login popup
 When i click on the Create New Account link
-Then I should search for something
-Then I should see the something's listing
-When I click on a random item
-Then I should select a random available item's size
-Then I should add a item to the cart
-When I fill the CEP field
-Then I should see the shipping value
+When i fill the users information on the new account page
+Then i should verify if the required fields are filled
+When i click on the 'Agree to terms and conditions' checkbox
+Then i should verify if the 'Agree to terms and conditions' checkbox is selected
+When I click on the register button
+Then I should verify if the user's logged in
+
+Scenario: The customer should be able to create an account and make an order
+Given the customer access the store's home page
+When i click the account button
+Then i should see the login popup
+When i click on the Create New Account link
+When i fill the users information on the new account page
+Then i should verify if the required fields are filled
+When i click on the 'Agree to terms and conditions' checkbox
+Then i should verify if the 'Agree to terms and conditions' checkbox is selected
+When I click on the register button
+Then I should verify if the user's logged in
+When i click on any of the products displayed at the popular items section
+Then the product page should load
+When i select a new quantity of 2 items
+
