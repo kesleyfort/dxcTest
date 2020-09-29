@@ -8,6 +8,8 @@ import org.openqa.selenium.support.ui.Wait;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.stereotype.Component;
 
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -177,6 +179,13 @@ public class Utils {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+    }
+
+    public static double getProductValue(WebElement webElement) throws ParseException {
+        NumberFormat nf = NumberFormat.getCurrencyInstance();
+        Number number;
+        number = nf.parse(webElement.getText().trim().strip());
+        return number.doubleValue();
     }
 
 }

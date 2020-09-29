@@ -15,5 +15,9 @@ public class AdvantageDemoProductPage {
     @FindBy(xpath = "//div[@id='Description']//h1")
     public WebElement productTitle;
     public String productTitleXpath = "//div[@id='Description']//h1";
+    @FindBy(xpath = "//li//a[@id='shoppingCartLink']")
+    public WebElement cart;
+    @FindBy(xpath = "//div[@id='Description']/h2")
+    public WebElement price;
 
 }

@@ -6,9 +6,12 @@ import org.jbehave.core.annotations.*;
 import org.jbehave.web.selenium.WebDriverProvider;
 import org.junit.Assert;
 import org.openqa.selenium.By;
+import org.seleniumhq.jetty9.util.log.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
+import java.text.ParseException;
 
 import static com.dxc.testekesley.utils.Utils.*;
 
@@ -36,6 +39,9 @@ public class AdvantageDemoSteps extends AbstractSteps {
     @Value("${password}")
     private String userPassword;
     String selectedPopularItem;
+    String quantityOfItem;
+    double priceOfItem;
+
     /**
      * Function created to delete the user account after the scenario is finished
      */
@@ -118,21 +124,25 @@ public class AdvantageDemoSteps extends AbstractSteps {
     @When("i click on any of the products displayed at the popular items section")
     public void iClickOnAnyOfTheProductsDisplayedAtThePopularItemsSection() {
         selectedPopularItem = randomClickOnPopularItem(advantageDemoHomePage.popularItems);
-        LOG.info("Texto " + selectedPopularItem);
     }
 
     @Then("the product page should load")
     public void theProductPageShouldLoad() {
-        waitForElement(By.xpath(advantageDemoProductPage.productTitleXpath));
-        LOG.info("Texto " + selectedPopularItem);
-        Assert.assertEquals(selectedPopularItem, waitForElement(By.xpath(advantageDemoHomePage.popularItemsNameXpath)).getText().trim().strip());
+        waitUntilVisibility(advantageDemoProductPage.addToCart);
+        Assert.assertTrue("Product page is loaded", advantageDemoProductPage.addToCart.isDisplayed());
     }
 
     @When("i select a new quantity of $numberOfItems items")
     public void iSelectANewQuantityOfItems(@Named("numberOfItems") String quantity) {
+        quantityOfItem = quantity;
         waitUntilClickable(advantageDemoProductPage.quantityOfItem);
         clearText(advantageDemoProductPage.quantityOfItem);
         setText(advantageDemoProductPage.quantityOfItem, quantity);
+        try {
+            priceOfItem = getProductValue(advantageDemoProductPage.price);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
     }
 
     @Then("i should verify if the quantity is $quantity")
@@ -146,18 +156,84 @@ public class AdvantageDemoSteps extends AbstractSteps {
     }
 
     @Then("i should verify if the selected item is in the cart")
-
     public void thenIShouldVerifyIfTheSelectedItemIsInTheCart() {
-        // PENDING
+        waitForElement(By.xpath("//tool-tip-cart//h3[contains(.,'" + selectedPopularItem + "')]"));
+        Assert.assertEquals(selectedPopularItem, getText(By.xpath("//tool-tip-cart//h3[contains(.,'" + selectedPopularItem + "')]")));
     }
 
     @When("i click on the cart")
     public void whenIClickOnTheCart() {
-        // PENDING
+        click(advantageDemoProductPage.cart);
     }
 
     @Then("i should verify if the product, desired quantity and price are correct")
     public void thenIShouldVerifyIfTheProductDesiredQuantityAndPriceAreCorrect() {
+        Assert.assertEquals(getText(advantageDemoProductPage.productTitle), getText(By.xpath("//tool-tip-cart//h3[contains(.,'" + selectedPopularItem + "')]")));
+        Assert.assertEquals(quantityOfItem, getText(By.xpath("//tool-tip-cart//label[contains(.,'QTY')]")).split(":")[1].trim().strip());
+        Double totalOfOrder = Integer.parseInt(quantityOfItem) * priceOfItem;
+        LOG.info("TEXTO " + totalOfOrder);
+        Assert.assertEquals(selectedPopularItem, getText(By.xpath("//tool-tip-cart//span[contains(.,'$')]")));
+
+    }
+
+    @When("i click on the checkout button")
+    @Pending
+    public void whenIClickOnTheCheckoutButton() {
         // PENDING
     }
+
+    @Then("i should verify if the order payment screen has loaded")
+    @Pending
+    public void thenIShouldVerifyIfTheOrderPaymentScreenHasLoaded() {
+        // PENDING
+    }
+
+    @When("i click on the next button")
+    @Pending
+    public void whenIClickOnTheNextButton() {
+        // PENDING
+    }
+
+    @When("i select the MasterCredit payment option")
+    @Pending
+    public void whenISelectTheMasterCreditPaymentOption() {
+        // PENDING
+    }
+
+    @When("i fill the required fields for payment")
+    @Pending
+    public void whenIFillTheRequiredFieldsForPayment() {
+        // PENDING
+    }
+
+    @Then("i should verify if the required fields for the payment are filled")
+    @Pending
+    public void thenIShouldVerifyIfTheRequiredFieldsForThePaymentAreFilled() {
+        // PENDING
+    }
+
+    @When("i click on the pay now button")
+    @Pending
+    public void whenIClickOnThePayNowButton() {
+        // PENDING
+    }
+
+    @Then("i should verify if the order and tracking number are shown")
+    @Pending
+    public void thenIShouldVerifyIfTheOrderAndTrackingNumberAreShown() {
+        // PENDING
+    }
+
+    @When("i logout")
+    @Pending
+    public void whenILogout() {
+        // PENDING
+    }
+
+    @Then("i should be logged out")
+    @Pending
+    public void thenIShouldBeLoggedOut() {
+        // PENDING
+    }
+
 }
