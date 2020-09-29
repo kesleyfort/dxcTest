@@ -21,6 +21,7 @@ public class AdvantageDemoHomePage {
     public String loadingSpinnerXpath = "//div[@class='loader']";
     @FindBy(xpath = "//div[@id='loginMiniTitle']//label[contains(.,'My account')]")
     public WebElement myAccount;
-    @FindBy(xpath = "//article[@id='popular_items']//a")
+    @FindBy(xpath = "//div[contains(@name,'popular_item_')]")
     public List<WebElement> popularItems;
+    public String popularItemsNameXpath = "//parent::div//p";
 }

@@ -7,11 +7,11 @@ import org.springframework.stereotype.Component;
 
 @Component
 @PageObject
-public class AdvantageDemoProductPage {
-    @FindBy(name = "save_to_cart")
-    public WebElement addToCart;
-    @FindBy(name = "quantity")
-    public WebElement quantityOfItem;
+public class AdvantageDemoShoppingCartPage {
+    @FindBy(id = "checkOutButton")
+    public WebElement checkout;
+    @FindBy(id = "next_btn")
+    public WebElement next;
     @FindBy(xpath = "//div[@id='Description']//h1")
     public WebElement productTitle;
     public String productTitleXpath = "//div[@id='Description']//h1";

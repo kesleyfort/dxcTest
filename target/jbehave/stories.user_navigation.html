@@ -9,7 +9,11 @@
 <div class="beforeStorySteps">
 </div>
 <div class="scenario">
-<h2>Scenario: The customer should be able to create an account</h2>
+<h2>Scenario: The customer should be able to create an account and make an order</h2>
+<div class="meta">
+<div class="keyword">Meta:</div>
+<div class="property">@singleTest </div>
+</div>
 <div class="step successful">Given the customer access the store's home page</div>
 <div class="step successful">When i click the account button</div>
 <div class="step successful">Then i should see the login popup</div>
@@ -19,3 +23,4 @@
 <div class="step successful">When i click on the 'Agree to terms and conditions' checkbox</div>
 <div class="step successful">Then i should verify if the 'Agree to terms and conditions' checkbox is selected</div>
 <div class="step successful">When I click on the register button</div>
+<div class="step successful">Then I should verify if the user's logged in</div>

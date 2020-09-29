@@ -38,6 +38,12 @@
             <type>zip</type>
         </dependency>
         <dependency>
+            <groupId>org.jbehave</groupId>
+            <artifactId>jbehave-gherkin</artifactId>
+            <version>4.6.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.jbehave.site</groupId>
             <artifactId>jbehave-site-resources</artifactId>
             <version>3.3.1</version>
@@ -85,13 +91,53 @@
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
                     <execution>
+                        <id>unpack-jbehave-site-resources</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <!--                            <overwriteReleases>false</overwriteReleases>-->
+                            <!--                            <overwriteSnapshots>true</overwriteSnapshots>-->
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.jbehave.site</groupId>
+                                    <artifactId>jbehave-site-resources</artifactId>
+                                    <version>3.3</version>
+                                    <type>zip</type>
+                                    <outputDirectory>${project.build.directory}/jbehave/view</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>unpack-jbehave-reports-resources</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <!--                            <overwriteReleases>false</overwriteReleases>-->
+                            <!--                            <overwriteSnapshots>true</overwriteSnapshots>-->
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.jbehave</groupId>
+                                    <artifactId>jbehave-core</artifactId>
+                                    <version>4.6.2</version>
+                                    <outputDirectory>target/jbehave/view</outputDirectory>
+                                    <includes>**\/*.css,**\/*.ftl,**\/*.js</includes>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                    <execution>
                         <id>unpack-resources-core</id>
                         <phase>process-resources</phase>
                         <goals>
                             <goal>unpack</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${jbehave.view.output.directory}</outputDirectory>
+                            <outputDirectory>target/jbehave/view</outputDirectory>
                             <overWriteReleases>true</overWriteReleases>
                             <overWriteSnapshots>true</overWriteSnapshots>
                             <excludes>**/*.class</excludes>
@@ -115,7 +161,7 @@
                         <id>unpack-view-resources</id>
                         <phase>process-resources</phase>
                         <configuration>
-                            <viewDirectory>${jbehave.view.output.directory}</viewDirectory>
+                            <viewDirectory>target/jbehave/view</viewDirectory>
                         </configuration>
                         <goals>
                             <goal>unpack-view-resources</goal>

@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 import java.util.List;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 @Component
 public class Utils {
@@ -28,7 +28,7 @@ public class Utils {
      */
     public static WebElement waitForElement(By by) {
         Wait<WebDriver> wait = new FluentWait<>(webDriverProvider.get())
-                .withTimeout(Duration.ofSeconds(15))
+                .withTimeout(Duration.ofSeconds(20))
                 .pollingEvery(Duration.ofSeconds(3))
                 .ignoring(NoSuchElementException.class)
                 .ignoring(StaleElementReferenceException.class);
@@ -83,6 +83,7 @@ public class Utils {
      * @param text
      */
     public static void setText(WebElement webElement, String text) {
+        webElement.clear();
         webElement.sendKeys(text);
     }
 
@@ -134,10 +135,48 @@ public class Utils {
 
     /**
      * Randomly clicks on an item from a List of web elements
+     *
+     * @return
      */
-    public static void randomClick(List<WebElement> webElementList) {
-        Random random = new Random();
-        webElementList.get(random.nextInt(webElementList.size() - 1)).click();
+    public static String randomClickOnPopularItem(List<WebElement> webElementList) {
+        int position = ThreadLocalRandom.current().nextInt(0, webElementList.size() - 1);
+        scrollIntoView(By.xpath("//div[contains(@name,'popular_item_')]"));
+        String xpathForViewDetails = "//div[contains(@name,'popular_item_')]//a[" + position + "]";
+        String xpathForSelectedItemName = "//div[contains(@name,'popular_item_')]//p[" + position + "]";
+        String selectedItemName = webElementList.get(position).findElement(By.xpath(xpathForSelectedItemName)).getText();
+        webElementList.get(position).findElement(By.xpath(xpathForViewDetails)).click();
+        return selectedItemName;
+    }
+
+    /**
+     * Evaluates if the web element is selected.
+     *
+     * @param webElement
+     * @return
+     */
+    public static Boolean isSelected(WebElement webElement) {
+        return webElement.isSelected();
+    }
+
+    /**
+     * Clear any text from any type of input/textarea.
+     *
+     * @param webElement
+     */
+    public static void clearText(WebElement webElement) {
+        click(webElement);
+        webElement.sendKeys(Keys.CONTROL + "a");
+        webElement.sendKeys(Keys.DELETE);
+    }
+
+    public static void scrollIntoView(By by) {
+        WebElement element = webDriverProvider.get().findElement(by);
+        ((JavascriptExecutor) webDriverProvider.get()).executeScript("arguments[0].scrollIntoView(true);", element);
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
 }

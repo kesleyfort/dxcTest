@@ -35,18 +35,18 @@ public class AdvantageDemoSteps extends AbstractSteps {
     private String userEmail;
     @Value("${password}")
     private String userPassword;
-
+    String selectedPopularItem;
     /**
      * Function created to delete the user account after the scenario is finished
      */
     @AfterScenario
     public void deleteAccount() {
+        waitForPageLoad();
         click(advantageDemoHomePage.userAccount);
         click(advantageDemoHomePage.myAccount);
         waitForPageLoad();
         click(advantageDemoMyAccount.deleteAccount);
-        waitUntilVisibility(advantageDemoMyAccount.yesButtonDeleteAccount);
-        click(advantageDemoMyAccount.yesButtonDeleteAccount);
+        waitForElement(By.xpath(advantageDemoMyAccount.yesButtonDeleteAccountXpath)).click();
         waitForPageLoad();
     }
 
@@ -95,7 +95,8 @@ public class AdvantageDemoSteps extends AbstractSteps {
 
     @When("i click on the 'Agree to terms and conditions' checkbox")
     public void iClickOnTheAgreeToTermsAndConditionsCheckbox() {
-        click(advantageDemoCreateNewAccountPage.agreeToConditionsCheckbox);
+        if (!isSelected(advantageDemoCreateNewAccountPage.agreeToConditionsCheckbox))
+            click(advantageDemoCreateNewAccountPage.agreeToConditionsCheckbox);
     }
 
     @Then("i should verify if the 'Agree to terms and conditions' checkbox is selected")
@@ -110,23 +111,53 @@ public class AdvantageDemoSteps extends AbstractSteps {
 
     @Then("I should verify if the user's logged in")
     public void iShouldVerifyIfTheUsersLoggedIn() {
-        waitUntilClickable(advantageDemoHomePage.userAccount);
+//        waitUntilClickable(advantageDemoHomePage.userAccount);
         Assert.assertEquals(username, waitForElement(By.xpath("//a[@id='menuUserLink' and span[contains(.,'" + username + "')]]")).getText());
     }
 
     @When("i click on any of the products displayed at the popular items section")
     public void iClickOnAnyOfTheProductsDisplayedAtThePopularItemsSection() {
-        randomClick(advantageDemoHomePage.popularItems);
+        selectedPopularItem = randomClickOnPopularItem(advantageDemoHomePage.popularItems);
+        LOG.info("Texto " + selectedPopularItem);
     }
 
     @Then("the product page should load")
     public void theProductPageShouldLoad() {
-        waitUntilClickable(advantageDemoProductPage.addToCart);
-        Assert.assertTrue(advantageDemoProductPage.addToCart.isDisplayed());
+        waitForElement(By.xpath(advantageDemoProductPage.productTitleXpath));
+        LOG.info("Texto " + selectedPopularItem);
+        Assert.assertEquals(selectedPopularItem, waitForElement(By.xpath(advantageDemoHomePage.popularItemsNameXpath)).getText().trim().strip());
     }
 
     @When("i select a new quantity of $numberOfItems items")
     public void iSelectANewQuantityOfItems(@Named("numberOfItems") String quantity) {
+        waitUntilClickable(advantageDemoProductPage.quantityOfItem);
+        clearText(advantageDemoProductPage.quantityOfItem);
         setText(advantageDemoProductPage.quantityOfItem, quantity);
+    }
+
+    @Then("i should verify if the quantity is $quantity")
+    public void thenIShouldVerifyIfTheQuantityIs(@Named("quantity") String quantity) {
+        Assert.assertEquals(quantity, getTextFromInput(advantageDemoProductPage.quantityOfItem));
+    }
+
+    @When("i click on the add to cart button")
+    public void whenIClickOnTheAddToCartButton() {
+        click(advantageDemoProductPage.addToCart);
+    }
+
+    @Then("i should verify if the selected item is in the cart")
+
+    public void thenIShouldVerifyIfTheSelectedItemIsInTheCart() {
+        // PENDING
+    }
+
+    @When("i click on the cart")
+    public void whenIClickOnTheCart() {
+        // PENDING
+    }
+
+    @Then("i should verify if the product, desired quantity and price are correct")
+    public void thenIShouldVerifyIfTheProductDesiredQuantityAndPriceAreCorrect() {
+        // PENDING
     }
 }
