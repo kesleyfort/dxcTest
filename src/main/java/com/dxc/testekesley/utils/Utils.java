@@ -139,10 +139,10 @@ public class Utils {
      * @return
      */
     public static String randomClickOnPopularItem(List<WebElement> webElementList) {
-        int position = ThreadLocalRandom.current().nextInt(0, webElementList.size() - 1);
+        int position = ThreadLocalRandom.current().nextInt(1, webElementList.size());
         scrollIntoView(By.xpath("//div[contains(@name,'popular_item_')]"));
-        String xpathForViewDetails = "//div[contains(@name,'popular_item_')]//a[" + position + "]";
-        String xpathForSelectedItemName = "//div[contains(@name,'popular_item_')]//p[" + position + "]";
+        String xpathForViewDetails = "//div[contains(@name,'popular_item_')]" + "[" + position + "]" + "//a";
+        String xpathForSelectedItemName = "//div[contains(@name,'popular_item_')]" + "[" + position + "]" + "//p";
         String selectedItemName = webElementList.get(position).findElement(By.xpath(xpathForSelectedItemName)).getText();
         webElementList.get(position).findElement(By.xpath(xpathForViewDetails)).click();
         return selectedItemName;
