@@ -6,29 +6,34 @@ import org.jbehave.core.annotations.*;
 import org.jbehave.web.selenium.WebDriverProvider;
 import org.junit.Assert;
 import org.openqa.selenium.By;
-import org.seleniumhq.jetty9.util.log.Log;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.openqa.selenium.WebElement;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 import static com.dxc.testekesley.utils.Utils.*;
 
 @Component
 public class AdvantageDemoSteps extends AbstractSteps {
     protected Logger LOG = Logger.getLogger(this.getClass());
-    @Autowired
+    final
     AdvantageDemoHomePage advantageDemoHomePage;
-    @Autowired
+    final
     AdvantageDemoLoginPopUp advantageDemoLoginPopUp;
-    @Autowired
+    final
     AdvantageDemoCreateNewAccountPage advantageDemoCreateNewAccountPage;
-    @Autowired
+    final
     AdvantageDemoMyAccount advantageDemoMyAccount;
-    @Autowired
+    final
     AdvantageDemoProductPage advantageDemoProductPage;
-    @Autowired
+    final
+    AdvantageDemoShoppingCartPage advantageDemoShoppingCartPage;
+    final
+    AdvantageDemoOrderPaymentPage advantageDemoOrderPaymentPage;
+    final
     WebDriverProvider webDriverProvider;
     @Value("${home.url}")
     private String advantageDemoURL;
@@ -41,6 +46,20 @@ public class AdvantageDemoSteps extends AbstractSteps {
     String selectedPopularItem;
     String quantityOfItem;
     double priceOfItem;
+    private ArrayList<HashMap<String, String>> dataset;
+
+    public AdvantageDemoSteps(AdvantageDemoHomePage advantageDemoHomePage, AdvantageDemoLoginPopUp advantageDemoLoginPopUp, AdvantageDemoCreateNewAccountPage advantageDemoCreateNewAccountPage, AdvantageDemoMyAccount advantageDemoMyAccount, AdvantageDemoProductPage advantageDemoProductPage, AdvantageDemoShoppingCartPage advantageDemoShoppingCartPage, AdvantageDemoOrderPaymentPage advantageDemoOrderPaymentPage, WebDriverProvider webDriverProvider) {
+        this.advantageDemoHomePage = advantageDemoHomePage;
+        this.advantageDemoLoginPopUp = advantageDemoLoginPopUp;
+        this.advantageDemoCreateNewAccountPage = advantageDemoCreateNewAccountPage;
+        this.advantageDemoMyAccount = advantageDemoMyAccount;
+        this.advantageDemoProductPage = advantageDemoProductPage;
+        this.advantageDemoShoppingCartPage = advantageDemoShoppingCartPage;
+        this.advantageDemoOrderPaymentPage = advantageDemoOrderPaymentPage;
+        this.webDriverProvider = webDriverProvider;
+        dataset = readDataFromDatasheet("src/main/resources/Data.xlsx");
+
+    }
 
     /**
      * Function created to delete the user account after the scenario is finished
@@ -91,12 +110,30 @@ public class AdvantageDemoSteps extends AbstractSteps {
         click(advantageDemoCreateNewAccountPage.allowOffersCheckbox);
     }
 
+    @When("i fill the users $id information from spreadsheet on the new account page")
+    public void iFillTheUsersInformationFromSpreadSheetOnTheNewAccountPage(@Named("id") int id) {
+        waitUntilClickable(advantageDemoCreateNewAccountPage.usernameField);
+        setText(advantageDemoCreateNewAccountPage.usernameField, dataset.get(id).get("username"));
+        setText(advantageDemoCreateNewAccountPage.passwordField, dataset.get(id).get("password"));
+        setText(advantageDemoCreateNewAccountPage.confirmPasswordField, dataset.get(id).get("password"));
+        setText(advantageDemoCreateNewAccountPage.emailField, dataset.get(id).get("email"));
+        click(advantageDemoCreateNewAccountPage.allowOffersCheckbox);
+    }
+
     @Then("i should verify if the required fields are filled")
     public void iShouldVerifyIfTheRequiredFieldsAreFilled() {
         Assert.assertEquals(username, getTextFromInput(advantageDemoCreateNewAccountPage.usernameField));
         Assert.assertEquals(userPassword, getTextFromInput(advantageDemoCreateNewAccountPage.passwordField));
         Assert.assertEquals(userPassword, getTextFromInput(advantageDemoCreateNewAccountPage.confirmPasswordField));
         Assert.assertEquals(userEmail, getTextFromInput(advantageDemoCreateNewAccountPage.emailField));
+    }
+
+    @Then("i should verify if the required fields are filled wth data from the $id at the spreadsheet")
+    public void iShouldVerifyIfTheRequiredFieldsAreFilledWithDataFromTheSpreadsheet(@Named("id") int id) {
+        Assert.assertEquals(dataset.get(id).get("username"), getTextFromInput(advantageDemoCreateNewAccountPage.usernameField));
+        Assert.assertEquals(dataset.get(id).get("password"), getTextFromInput(advantageDemoCreateNewAccountPage.passwordField));
+        Assert.assertEquals(dataset.get(id).get("password"), getTextFromInput(advantageDemoCreateNewAccountPage.confirmPasswordField));
+        Assert.assertEquals(dataset.get(id).get("email"), getTextFromInput(advantageDemoCreateNewAccountPage.emailField));
     }
 
     @When("i click on the 'Agree to terms and conditions' checkbox")
@@ -117,13 +154,24 @@ public class AdvantageDemoSteps extends AbstractSteps {
 
     @Then("I should verify if the user's logged in")
     public void iShouldVerifyIfTheUsersLoggedIn() {
-//        waitUntilClickable(advantageDemoHomePage.userAccount);
         Assert.assertEquals(username, waitForElement(By.xpath("//a[@id='menuUserLink' and span[contains(.,'" + username + "')]]")).getText());
+    }
+
+    @Then("I should verify if the user $id is logged in")
+    public void iShouldVerifyIfTheUserIsLoggedIn(@Named("id") int id) {
+        Assert.assertEquals(dataset.get(id).get("username"), waitForElement(By.xpath("//a[@id='menuUserLink' and span[contains(.,'" + dataset.get(id).get("username") + "')]]")).getText());
     }
 
     @When("i click on any of the products displayed at the popular items section")
     public void iClickOnAnyOfTheProductsDisplayedAtThePopularItemsSection() {
         selectedPopularItem = randomClickOnPopularItem(advantageDemoHomePage.popularItems);
+    }
+
+    @When("i click on the product selected by user $id displayed at the popular items section")
+    public void iClickOnAnyOfTheProductsDisplayedAtThePopularItemsSection(@Named("id") int id) {
+        String popularItemXpath = "//div[contains(@name,'popular_item_') and p[text()='" + dataset.get(id).get("popularItem") + "']]//p";
+        selectedPopularItem = webDriverProvider.get().findElement(By.xpath(popularItemXpath)).getText().trim().strip();
+        webDriverProvider.get().findElement(By.xpath("//div[contains(@name,'popular_item_') and p[text()='" + dataset.get(id).get("popularItem") + "']]//a")).click();
     }
 
     @Then("the product page should load")
@@ -145,9 +193,28 @@ public class AdvantageDemoSteps extends AbstractSteps {
         }
     }
 
+    @When("i select a new quantity based on the user $id on spreadsheet")
+    public void iSelectANewQuantityOfItemsBasedOnSpreadsheet(@Named("id") String id) {
+        int userId = Integer.parseInt(id);
+        quantityOfItem = dataset.get(userId).get("quantity");
+        waitUntilClickable(advantageDemoProductPage.quantityOfItem);
+        clearText(advantageDemoProductPage.quantityOfItem);
+        setText(advantageDemoProductPage.quantityOfItem, quantityOfItem);
+        try {
+            priceOfItem = getProductValue(advantageDemoProductPage.price);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+    }
+
     @Then("i should verify if the quantity is $quantity")
     public void thenIShouldVerifyIfTheQuantityIs(@Named("quantity") String quantity) {
         Assert.assertEquals(quantity, getTextFromInput(advantageDemoProductPage.quantityOfItem));
+    }
+
+    @Then("i should verify if product quantity is the same as the $id on the spreadsheet")
+    public void thenIShouldVerifyIfTheQuantityIsTheSameAsSpreadSheet(@Named("id") int id) {
+        Assert.assertEquals(dataset.get(id).get("quantity"), getTextFromInput(advantageDemoProductPage.quantityOfItem));
     }
 
     @When("i click on the add to cart button")
@@ -157,83 +224,96 @@ public class AdvantageDemoSteps extends AbstractSteps {
 
     @Then("i should verify if the selected item is in the cart")
     public void thenIShouldVerifyIfTheSelectedItemIsInTheCart() {
-        waitForElement(By.xpath("//tool-tip-cart//h3[contains(.,'" + selectedPopularItem + "')]"));
-        Assert.assertEquals(selectedPopularItem, getText(By.xpath("//tool-tip-cart//h3[contains(.,'" + selectedPopularItem + "')]")));
+        String xpathExpression = "//tool-tip-cart//h3[contains(.,'" + selectedPopularItem + "')]";
+        WebElement productTitle = waitForElement(By.xpath(xpathExpression));
+        String actualTitle = productTitle.getText();
+        Assert.assertEquals(selectedPopularItem, actualTitle);
     }
 
     @When("i click on the cart")
     public void whenIClickOnTheCart() {
+        waitUntilClickable(advantageDemoProductPage.cart);
         click(advantageDemoProductPage.cart);
     }
 
     @Then("i should verify if the product, desired quantity and price are correct")
     public void thenIShouldVerifyIfTheProductDesiredQuantityAndPriceAreCorrect() {
-        Assert.assertEquals(getText(advantageDemoProductPage.productTitle), getText(By.xpath("//tool-tip-cart//h3[contains(.,'" + selectedPopularItem + "')]")));
-        Assert.assertEquals(quantityOfItem, getText(By.xpath("//tool-tip-cart//label[contains(.,'QTY')]")).split(":")[1].trim().strip());
+        String productTitleXpath = "//div[@id='shoppingCart']//tbody//td//label[contains(.,'" + selectedPopularItem + "')]";
+        String productQuantityXpath = "//div[@id='shoppingCart']//tbody//td//label[text()='" + quantityOfItem + "']";
+        String productPriceXpath = "//div[@id='shoppingCart']//tbody//td//p";
         Double totalOfOrder = Integer.parseInt(quantityOfItem) * priceOfItem;
-        LOG.info("TEXTO " + totalOfOrder);
-        Assert.assertEquals(selectedPopularItem, getText(By.xpath("//tool-tip-cart//span[contains(.,'$')]")));
-
+        String totalOfOrderInCurrency = getProductValueInCurrency(totalOfOrder);
+        waitForElement(By.xpath(productTitleXpath));
+        Assert.assertEquals(selectedPopularItem, getText(By.xpath(productTitleXpath)).strip().trim());
+        Assert.assertEquals(quantityOfItem, getText(By.xpath(productQuantityXpath)).strip().trim());
+        Assert.assertEquals(totalOfOrderInCurrency, getText(By.xpath(productPriceXpath)).strip().trim());
     }
 
     @When("i click on the checkout button")
     @Pending
     public void whenIClickOnTheCheckoutButton() {
-        // PENDING
+        click(advantageDemoShoppingCartPage.checkout);
     }
 
     @Then("i should verify if the order payment screen has loaded")
     @Pending
     public void thenIShouldVerifyIfTheOrderPaymentScreenHasLoaded() {
-        // PENDING
+        Assert.assertTrue("Page has loaded", advantageDemoOrderPaymentPage.orderPaymentTitle.isDisplayed());
     }
 
     @When("i click on the next button")
     @Pending
     public void whenIClickOnTheNextButton() {
-        // PENDING
+        click(advantageDemoOrderPaymentPage.next);
     }
 
     @When("i select the MasterCredit payment option")
     @Pending
     public void whenISelectTheMasterCreditPaymentOption() {
-        // PENDING
+        click(advantageDemoOrderPaymentPage.masterCreditOption);
     }
 
     @When("i fill the required fields for payment")
     @Pending
     public void whenIFillTheRequiredFieldsForPayment() {
-        // PENDING
+        setText(advantageDemoOrderPaymentPage.creditCardNumberField, "1234 5678 9012");
+        setText(advantageDemoOrderPaymentPage.cvvNumberField, "765");
+        setText(advantageDemoOrderPaymentPage.cardHolderName, "Bam Adebayo");
     }
 
     @Then("i should verify if the required fields for the payment are filled")
     @Pending
     public void thenIShouldVerifyIfTheRequiredFieldsForThePaymentAreFilled() {
-        // PENDING
+        Assert.assertNotNull("Verifying if field 'Credit Card number' is not null", getTextFromInput(advantageDemoOrderPaymentPage.creditCardNumberField));
+        Assert.assertNotNull("Verifying if field 'CVV Number' is not null", getTextFromInput(advantageDemoOrderPaymentPage.cvvNumberField));
+        Assert.assertNotNull("Verifying if field 'Cardholder Name' is not null", getTextFromInput(advantageDemoOrderPaymentPage.cardHolderName));
     }
 
     @When("i click on the pay now button")
     @Pending
     public void whenIClickOnThePayNowButton() {
-        // PENDING
+        click(advantageDemoOrderPaymentPage.payNowButton);
     }
 
     @Then("i should verify if the order and tracking number are shown")
     @Pending
     public void thenIShouldVerifyIfTheOrderAndTrackingNumberAreShown() {
-        // PENDING
+        waitUntilVisibility(advantageDemoOrderPaymentPage.trackingNumberText);
+        Assert.assertTrue("Verifying if the text is displayed", advantageDemoOrderPaymentPage.trackingNumberText.isDisplayed());
+        Assert.assertTrue("Verifying if the text is displayed", advantageDemoOrderPaymentPage.orderPaymentTitle.isDisplayed());
     }
 
     @When("i logout")
     @Pending
     public void whenILogout() {
-        // PENDING
+        click(advantageDemoHomePage.userAccount);
+        click(advantageDemoHomePage.logout);
     }
 
     @Then("i should be logged out")
     @Pending
     public void thenIShouldBeLoggedOut() {
-        // PENDING
+        Assert.assertEquals("", waitForElement(By.xpath("//a[@id='menuUserLink']//span")).getText());
     }
 
 }

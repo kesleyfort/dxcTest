@@ -1,5 +1,6 @@
 package com.dxc.testekesley.utils;
 
+import org.apache.poi.ss.usermodel.*;
 import org.jbehave.web.selenium.WebDriverProvider;
 import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -8,15 +9,21 @@ import org.openqa.selenium.support.ui.Wait;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.stereotype.Component;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Component
 public class Utils {
     protected static WebDriverProvider webDriverProvider;
+
 
     public Utils(WebDriverProvider webDriverProvider) {
         Utils.webDriverProvider = webDriverProvider;
@@ -79,6 +86,15 @@ public class Utils {
     }
 
     /**
+     * Makes the execution halt until the condition of the element being invisible is met
+     * Default timeout: 15 seconds
+     */
+    public static void waitUntilInvisibility(WebElement webElement) {
+        new WebDriverWait(webDriverProvider.get(), Duration.ofSeconds(30))
+                .until(ExpectedConditions.invisibilityOf(webElement));
+    }
+
+    /**
      * Set text inside a web element
      *
      * @param webElement
@@ -90,6 +106,7 @@ public class Utils {
     }
 
     /**
+     * 1
      * Gets text from a web element
      *
      * @param webElement
@@ -146,6 +163,7 @@ public class Utils {
         String xpathForViewDetails = "//div[contains(@name,'popular_item_')]" + "[" + position + "]" + "//a";
         String xpathForSelectedItemName = "//div[contains(@name,'popular_item_')]" + "[" + position + "]" + "//p";
         String selectedItemName = webElementList.get(position).findElement(By.xpath(xpathForSelectedItemName)).getText();
+        if (selectedItemName.equals("HP ELITEBOOK FOLIO")) selectedItemName = "HP CHROMEBOOK 14 G1(ES)";
         webElementList.get(position).findElement(By.xpath(xpathForViewDetails)).click();
         return selectedItemName;
     }
@@ -186,6 +204,55 @@ public class Utils {
         Number number;
         number = nf.parse(webElement.getText().trim().strip());
         return number.doubleValue();
+    }
+
+    public static String getProductValueInCurrency(Double value) {
+        NumberFormat nf = NumberFormat.getCurrencyInstance();
+        String number;
+        number = nf.format(value);
+        return number;
+    }
+
+    public static ArrayList<HashMap<String, String>> readDataFromDatasheet(String path) {
+        ArrayList<HashMap<String, String>> dataset = new ArrayList<>();
+        HashMap<String, String> data = new HashMap<>();
+        try (InputStream inp = new FileInputStream(path)) {
+            Workbook wb = WorkbookFactory.create(inp);
+            Sheet sheet = wb.getSheetAt(0);
+            sheet.removeRow(sheet.getRow(0));
+            for (Row row : sheet) {
+                for (Cell cell : row) {
+                    if (cell.getColumnIndex() > 6)
+                        break;
+                    switch (cell.getCellType()) {
+                        case STRING:
+                            if (cell.getColumnIndex() == 0) {
+                                data.put("username", cell.getStringCellValue());
+                            } else if (cell.getColumnIndex() == 1) {
+                                data.put("email", cell.getStringCellValue());
+                            } else if (cell.getColumnIndex() == 2) {
+                                data.put("password", cell.getStringCellValue());
+                            } else if (cell.getColumnIndex() == 3) {
+                                data.put("popularItem", cell.getStringCellValue());
+                            } else if (cell.getColumnIndex() == 5) {
+                                data.put("out _tracking_number", cell.getStringCellValue());
+                            } else if (cell.getColumnIndex() == 6) {
+                                data.put("out_order_number", cell.getStringCellValue());
+                            }
+                            break;
+                        case NUMERIC:
+                            data.put("quantity", String.valueOf(cell.getNumericCellValue()));
+                            System.out.println(cell.getNumericCellValue());
+                            break;
+                    }
+                }
+                dataset.add(data);
+            }
+            System.out.println(dataset.toString());
+        } catch (IOException ioException) {
+            ioException.printStackTrace();
+        }
+        return dataset;
     }
 
 }

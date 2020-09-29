@@ -10,10 +10,10 @@ import org.springframework.stereotype.Component;
 public class AdvantageDemoShoppingCartPage {
     @FindBy(id = "checkOutButton")
     public WebElement checkout;
-    @FindBy(id = "next_btn")
-    public WebElement next;
     @FindBy(xpath = "//div[@id='Description']//h1")
     public WebElement productTitle;
     public String productTitleXpath = "//div[@id='Description']//h1";
+    @FindBy(id = "toolTipCart")
+    public WebElement toolTipCart;
 
 }

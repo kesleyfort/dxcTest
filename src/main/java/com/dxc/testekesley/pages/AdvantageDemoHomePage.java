@@ -24,4 +24,6 @@ public class AdvantageDemoHomePage {
     @FindBy(xpath = "//div[contains(@name,'popular_item_')]")
     public List<WebElement> popularItems;
     public String popularItemsNameXpath = "//parent::div//p";
+    @FindBy(xpath = "//div[@id='loginMiniTitle']//label[text()='Sign out']")
+    public WebElement logout;
 }
